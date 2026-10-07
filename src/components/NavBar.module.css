@@ -1,77 +1,115 @@
+/* Frosted-glass bar that lets the page show through as it scrolls. */
 .header {
   position: sticky;
   top: 0;
-  z-index: 10;
-  background: var(--brand);
-  box-shadow: 0 2px 12px rgb(0 0 0 / 18%);
+  z-index: 20;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
 .inner {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 0.75rem;
   max-width: var(--page-width);
+  height: var(--nav-height);
   margin: 0 auto;
-  padding: 0.8rem 1rem;
+  padding: 0 1rem;
 }
 
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  color: #fff;
-  font-size: 1.35rem;
-  font-weight: 800;
+  gap: 0.55rem;
+  justify-self: start;
+  color: var(--text);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   text-decoration: none;
-  letter-spacing: 0.01em;
 }
 
-/* A small Poké Ball drawn with gradients. */
-.ball {
+/* A minimal Poké Ball: a red cap, a seam and a button, no outline. */
+.mark {
   position: relative;
-  width: 1.6rem;
-  height: 1.6rem;
-  border: 3px solid #1f2933;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: linear-gradient(to bottom, #fff 0 44%, #1f2933 44% 56%, #fff 56% 100%);
+  background: linear-gradient(to bottom, var(--accent) 0 46%, var(--text) 46% 54%, var(--surface) 54% 100%);
+  box-shadow: inset 0 0 0 1.5px var(--text);
+  transition: transform 0.6s var(--spring);
 }
 
-.ball::after {
+.mark::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 0.45rem;
-  height: 0.45rem;
-  border: 2px solid #1f2933;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--text);
   border-radius: 50%;
-  background: #fff;
+  background: var(--surface);
   transform: translate(-50%, -50%);
 }
 
-.nav {
-  display: flex;
+.brand:hover .mark {
+  transform: rotate(-20deg);
+}
+
+.surprise {
+  display: inline-flex;
+  align-items: center;
   gap: 0.4rem;
-}
-
-.link {
-  padding: 0.45rem 1rem;
+  justify-self: end;
+  padding: 0.38rem 0.85rem;
+  border: none;
   border-radius: 999px;
-  color: rgb(255 255 255 / 88%);
-  font-weight: 700;
-  text-decoration: none;
-  transition: background-color 0.15s;
-}
-
-.link:hover {
-  background: rgb(255 255 255 / 16%);
+  background: var(--accent);
   color: #fff;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s var(--spring);
 }
 
-.active,
-.active:hover {
-  background: #fff;
-  color: var(--brand);
+.surprise:hover {
+  background: var(--accent-hover);
+}
+
+.surprise:active {
+  transform: scale(0.95);
+}
+
+.surpriseIcon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.surprise:hover .surpriseIcon {
+  animation: wiggle 0.5s var(--ease);
+}
+
+@keyframes wiggle {
+  30% {
+    transform: rotate(-14deg);
+  }
+  60% {
+    transform: rotate(10deg);
+  }
+}
+
+@media (max-width: 560px) {
+  .wordmark,
+  .surpriseText {
+    display: none;
+  }
+
+  .surprise {
+    padding: 0.45rem;
+  }
 }

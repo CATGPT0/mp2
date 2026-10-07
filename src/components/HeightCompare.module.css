@@ -1,0 +1,41 @@
+.svg {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  height: auto;
+  margin: 0 auto;
+}
+
+.ground {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+
+.trainer {
+  fill: color-mix(in srgb, var(--text) 22%, transparent);
+}
+
+.pokemon {
+  fill: var(--type-color);
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: grow 1s var(--spring) 0.2s both;
+}
+
+.label {
+  fill: var(--text-faint);
+  font-size: 8px;
+  font-weight: 500;
+}
+
+.pokemonLabel {
+  fill: var(--text);
+  font-weight: 700;
+}
+
+@keyframes grow {
+  from {
+    transform: scaleY(0);
+  }
+}

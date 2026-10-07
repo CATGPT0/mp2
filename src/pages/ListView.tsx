@@ -1,11 +1,14 @@
-import { useMemo, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useRef, type ChangeEvent } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
+import { ArrowDown, ArrowUp, SearchIcon } from '../components/Icons'
 import { ErrorMessage, Loading } from '../components/StatusMessage'
 import TypeBadge from '../components/TypeBadge'
 import usePokemonList from '../hooks/usePokemonList'
+import controls from '../styles/controls.module.css'
 import type { PokemonSummary } from '../types/pokemon'
 import type { DetailNavState } from '../utils/detailNav'
 import { displayName, formatHeight, formatId, formatWeight } from '../utils/format'
+import { typeClass } from '../utils/typeClass'
 import styles from './ListView.module.css'
 
 type SortKey = 'id' | 'name' | 'height' | 'weight' | 'baseExperience' | 'totalStats'
@@ -18,6 +21,14 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: 'weight', label: 'Weight' },
   { key: 'baseExperience', label: 'Base experience' },
   { key: 'totalStats', label: 'Total base stats' },
+]
+
+// The numbers shown on the right of every row.
+const METRICS: { key: SortKey; label: string; format: (p: PokemonSummary) => string }[] = [
+  { key: 'height', label: 'Height', format: (p) => formatHeight(p.height) },
+  { key: 'weight', label: 'Weight', format: (p) => formatWeight(p.weight) },
+  { key: 'baseExperience', label: 'Base XP', format: (p) => String(p.baseExperience) },
+  { key: 'totalStats', label: 'Total', format: (p) => String(p.totalStats) },
 ]
 
 function isSortKey(value: string | null): value is SortKey {
@@ -41,11 +52,25 @@ export default function ListView() {
   const { status, pokemon, progress, error, retry } = usePokemonList()
   const location = useLocation()
   const [searchParams, setSearchParams] = useSearchParams()
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const query = searchParams.get('q') ?? ''
   const sortParam = searchParams.get('sort')
   const sortKey: SortKey = isSortKey(sortParam) ? sortParam : 'id'
   const order: SortOrder = searchParams.get('order') === 'desc' ? 'desc' : 'asc'
+  const sortLabel = SORT_OPTIONS.find((o) => o.key === sortKey)?.label ?? ''
+
+  // Press "/" anywhere on the page to jump to the search field.
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null
+      if (e.key !== '/' || (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+      e.preventDefault()
+      inputRef.current?.focus()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   // Keep search/sort state in the URL so it survives a trip to the detail
   // page and back. `replace` avoids one history entry per keystroke.
@@ -75,29 +100,37 @@ export default function ListView() {
 
   return (
     <section className={styles.page}>
-      <header className={styles.intro}>
-        <h1 className={styles.title}>Search the Pokédex</h1>
+      <header className={styles.hero}>
+        <p className={styles.eyebrow}>Pokédex</p>
+        <h1 className={styles.title}>Find your Pokémon.</h1>
         <p className={styles.subtitle}>
-          Find any of the original 151 Pokémon by name or number, then sort the results.
+          All 151 originals, searchable by name or number and sortable by what matters to you.
         </p>
       </header>
 
-      <div className={styles.controls}>
+      <div className={styles.toolbar}>
         <label className={styles.search}>
+          <SearchIcon className={styles.searchIcon} />
           <span className={styles.srOnly}>Search Pokémon</span>
           <input
+            ref={inputRef}
             type="search"
             className={styles.searchInput}
-            placeholder="Search by name or number, e.g. “pika” or “25”"
+            placeholder="Search by name or number"
             value={query}
             onChange={(e: ChangeEvent<HTMLInputElement>) => updateParam('q', e.target.value, '')}
             autoFocus
           />
+          {!query && (
+            <kbd className={styles.kbd} title="Press / to search">
+              /
+            </kbd>
+          )}
         </label>
 
         <div className={styles.sortGroup}>
-          <label className={styles.sortLabel}>
-            Sort by
+          <label className={styles.popup}>
+            <span className={styles.popupLabel}>Sort by</span>
             <select
               className={styles.select}
               value={sortKey}
@@ -111,22 +144,29 @@ export default function ListView() {
             </select>
           </label>
 
-          <div className={styles.orderToggle} role="group" aria-label="Sort order">
+          <div
+            className={`${controls.segmented} ${order === 'desc' ? controls.second : ''}`}
+            role="group"
+            aria-label="Sort order"
+          >
+            <span className={controls.indicator} aria-hidden="true" />
             <button
               type="button"
-              className={order === 'asc' ? `${styles.orderButton} ${styles.orderActive}` : styles.orderButton}
+              className={order === 'asc' ? `${controls.segment} ${controls.segmentActive}` : controls.segment}
               aria-pressed={order === 'asc'}
               onClick={() => updateParam('order', 'asc', 'asc')}
             >
-              ↑ Ascending
+              <ArrowUp />
+              Ascending
             </button>
             <button
               type="button"
-              className={order === 'desc' ? `${styles.orderButton} ${styles.orderActive}` : styles.orderButton}
+              className={order === 'desc' ? `${controls.segment} ${controls.segmentActive}` : controls.segment}
               aria-pressed={order === 'desc'}
               onClick={() => updateParam('order', 'desc', 'asc')}
             >
-              ↓ Descending
+              <ArrowDown />
+              Descending
             </button>
           </div>
         </div>
@@ -138,54 +178,53 @@ export default function ListView() {
       {status === 'ready' && (
         <>
           <p className={styles.count} aria-live="polite">
-            {results.length === 0
-              ? `No Pokémon match “${query}”.`
-              : `Showing ${results.length} of ${pokemon.length} Pokémon`}
+            {results.length === 0 ? (
+              <>No Pokémon match “{query}”.</>
+            ) : (
+              <>
+                <strong>{results.length}</strong> of {pokemon.length} Pokémon · sorted by {sortLabel.toLowerCase()},{' '}
+                {order === 'asc' ? 'ascending' : 'descending'}
+              </>
+            )}
           </p>
 
           {results.length > 0 && (
-            <div className={styles.list}>
-              <div className={styles.headerRow} aria-hidden="true">
-                <span />
-                <span className={sortKey === 'id' || sortKey === 'name' ? styles.sorted : undefined}>Pokémon</span>
-                <span>Type</span>
-                <span className={sortKey === 'height' ? styles.sorted : undefined}>Height</span>
-                <span className={sortKey === 'weight' ? styles.sorted : undefined}>Weight</span>
-                <span className={sortKey === 'baseExperience' ? styles.sorted : undefined}>Base XP</span>
-                <span className={sortKey === 'totalStats' ? styles.sorted : undefined}>Total</span>
-              </div>
-
-              <ul className={styles.rows}>
-                {results.map((p) => (
-                  <li key={p.id}>
-                    <Link to={`/pokemon/${p.id}`} state={navState} className={styles.row}>
-                      <img className={styles.sprite} src={p.sprite} alt="" loading="lazy" width={64} height={64} />
-                      <span className={styles.nameCell}>
-                        <span className={styles.number}>{formatId(p.id)}</span>
-                        <span className={styles.name}>{displayName(p.name)}</span>
+            <ul className={styles.grid}>
+              {results.map((p) => (
+                <li key={p.id} className={styles.cell}>
+                  <Link to={`/pokemon/${p.id}`} state={navState} className={`${styles.card} ${typeClass(p.types[0])}`}>
+                    <span className={styles.cardTop}>
+                      <span className={sortKey === 'id' ? `${styles.number} ${styles.active}` : styles.number}>
+                        {formatId(p.id)}
                       </span>
                       <span className={styles.types}>
                         {p.types.map((t) => (
                           <TypeBadge key={t} type={t} />
                         ))}
                       </span>
-                      <span className={`${styles.stat} ${styles.statHeight}`} data-label="Height">
-                        {formatHeight(p.height)}
-                      </span>
-                      <span className={`${styles.stat} ${styles.statWeight}`} data-label="Weight">
-                        {formatWeight(p.weight)}
-                      </span>
-                      <span className={`${styles.stat} ${styles.statXp}`} data-label="Base XP">
-                        {p.baseExperience}
-                      </span>
-                      <span className={`${styles.stat} ${styles.statTotal}`} data-label="Total">
-                        {p.totalStats}
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    </span>
+
+                    <span className={styles.art}>
+                      <span className={styles.glow} aria-hidden="true" />
+                      <img className={styles.artwork} src={p.artwork} alt="" loading="lazy" width={120} height={120} />
+                    </span>
+
+                    <span className={sortKey === 'name' ? `${styles.name} ${styles.active}` : styles.name}>
+                      {displayName(p.name)}
+                    </span>
+
+                    <span className={styles.stats}>
+                      {METRICS.map((m) => (
+                        <span key={m.key} className={m.key === sortKey ? `${styles.stat} ${styles.statActive}` : styles.stat}>
+                          <span className={styles.statLabel}>{m.label}</span>
+                          <span className={styles.statValue}>{m.format(p)}</span>
+                        </span>
+                      ))}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </>
       )}

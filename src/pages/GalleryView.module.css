@@ -4,220 +4,315 @@
   gap: 1.25rem;
 }
 
-.intro {
+/* ---------- Hero ---------- */
+
+.hero {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 2.5rem 0 1rem;
+  text-align: center;
+  animation: rise 0.8s var(--ease) both;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 
 .title {
   margin: 0;
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  font-weight: 800;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
 }
 
 .subtitle {
+  max-width: 36rem;
   margin: 0;
+  font-size: clamp(1.02rem, 2.2vw, 1.25rem);
   color: var(--text-muted);
 }
 
-.filters {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  padding: 1rem 1.1rem;
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+.subtitle em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 600;
 }
 
-.filterHeader {
+/* ---------- Filter toolbar ---------- */
+
+.toolbar {
+  position: sticky;
+  top: calc(var(--nav-height) + 10px);
+  z-index: 10;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-}
-
-.filterTitle {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.filterActions {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.matchToggle {
-  display: flex;
-  overflow: hidden;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-}
-
-.matchButton {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  background: var(--bg);
-  color: var(--text-muted);
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.matchButton + .matchButton {
-  border-left: 2px solid var(--border);
-}
-
-.matchActive {
-  background: var(--text);
-  color: var(--surface);
-}
-
-.clear {
-  padding: 0.45rem 0.9rem;
-  border: 2px solid var(--border);
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text);
-  font: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.clear:disabled {
-  opacity: 0.45;
-  cursor: default;
+  padding: 0.7rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  background: var(--glass);
+  box-shadow: var(--shadow);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
 .chips {
   display: flex;
+  flex: 1 1 520px;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
-/* Inactive chips are outlined in their type colour; active ones fill in. */
+/* Quiet until chosen, then filled with the type colour. */
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.4rem 0.6rem 0.4rem 0.9rem;
-  border: 2px solid var(--type-color);
+  gap: 0.4rem;
+  padding: 0.32rem 0.45rem 0.32rem 0.75rem;
+  border: none;
   border-radius: 999px;
-  background: transparent;
+  background: color-mix(in srgb, var(--text) 6%, transparent);
   color: var(--text);
   font: inherit;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.82rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+  transition: background-color 0.25s var(--ease), color 0.25s, transform 0.3s var(--spring);
+}
+
+.chip::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--type-color);
+  transition: background-color 0.25s;
 }
 
 .chip:hover {
-  background: color-mix(in srgb, var(--type-color) 15%, transparent);
+  background: color-mix(in srgb, var(--type-color) 18%, transparent);
 }
 
 .chip:active {
-  transform: scale(0.96);
+  transform: scale(0.94);
 }
 
 .chipActive,
 .chipActive:hover {
   background: var(--type-color);
   color: #fff;
+  font-weight: 600;
+}
+
+.chipActive::before {
+  background: #fff;
 }
 
 .chipCount {
-  min-width: 1.5rem;
-  padding: 0.05rem 0.4rem;
+  min-width: 1.4rem;
+  padding: 0 0.35rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--type-color) 22%, transparent);
-  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--text) 8%, transparent);
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
   text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .chipActive .chipCount {
-  background: rgb(255 255 255 / 28%);
+  background: rgb(255 255 255 / 25%);
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.clear {
+  padding: 0.42rem 0.9rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear:hover:not(:disabled) {
+  background: var(--accent-soft);
+}
+
+.clear:disabled {
+  color: var(--text-faint);
+  cursor: default;
 }
 
 .count {
-  margin: 0;
-  font-weight: 600;
+  margin: 0.5rem 0 -0.25rem 0.25rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
 
+.count strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---------- Cards ---------- */
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 1.1rem;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .card {
-  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
   height: 100%;
-  padding: 1rem 0.75rem 1.1rem;
-  border-radius: var(--radius);
-  background:
-    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--type-color) 32%, transparent) 0 42%, transparent 43%),
-    var(--surface);
-  box-shadow: var(--shadow);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
   color: inherit;
   text-decoration: none;
-  transition: transform 0.15s, box-shadow 0.15s;
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease);
 }
 
 .card:hover,
 .card:focus-visible {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--type-color) 40%, transparent);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
   outline: none;
 }
 
-.number {
-  align-self: flex-start;
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-muted);
+.card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 1.4rem 1.2rem 0.6rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--type-color) 10%, var(--surface)) 0%, var(--surface) 100%);
+}
+
+/* A soft coloured glow behind the artwork that blooms on hover. */
+.glow {
+  position: absolute;
+  inset: 22% 22% 18%;
+  border-radius: 50%;
+  background: var(--type-color);
+  opacity: 0.28;
+  filter: blur(28px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+}
+
+.card:hover .glow {
+  opacity: 0.5;
+  transform: scale(1.15);
 }
 
 .artwork {
+  position: relative;
   width: 100%;
-  max-width: 150px;
+  max-width: 160px;
   height: auto;
   aspect-ratio: 1;
   object-fit: contain;
-  filter: drop-shadow(0 6px 6px rgb(0 0 0 / 18%));
-  transition: transform 0.2s;
+  filter: drop-shadow(0 10px 12px rgb(0 0 0 / 16%));
+  transition: transform 0.6s var(--spring);
 }
 
 .card:hover .artwork {
-  transform: scale(1.06);
+  transform: translateY(-6px) scale(1.06);
+}
+
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 1rem 1.2rem;
+  text-align: center;
+}
+
+.number {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
 }
 
 .name {
-  font-size: 1.05rem;
-  font-weight: 800;
-  text-align: center;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 
 .types {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+}
+
+/* Cards fade up as they scroll into view, where the browser supports it. */
+@supports (animation-timeline: view()) {
+  .cell {
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero {
+    padding-top: 1.5rem;
+  }
+
+  .toolbar {
+    position: static;
+  }
+
+  .chips {
+    flex-basis: 100%;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
 }

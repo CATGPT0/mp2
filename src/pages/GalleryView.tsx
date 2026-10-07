@@ -3,6 +3,7 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ErrorMessage, Loading } from '../components/StatusMessage'
 import TypeBadge from '../components/TypeBadge'
 import usePokemonList from '../hooks/usePokemonList'
+import controls from '../styles/controls.module.css'
 import type { DetailNavState } from '../utils/detailNav'
 import { capitalize, displayName, formatId } from '../utils/format'
 import { typeClass } from '../utils/typeClass'
@@ -62,9 +63,12 @@ export default function GalleryView() {
 
   return (
     <section className={styles.page}>
-      <header className={styles.intro}>
-        <h1 className={styles.title}>Gallery</h1>
-        <p className={styles.subtitle}>Pick one or more types to filter the gallery.</p>
+      <header className={styles.hero}>
+        <p className={styles.eyebrow}>Gallery</p>
+        <h1 className={styles.title}>Meet the originals.</h1>
+        <p className={styles.subtitle}>
+          Mix and match types. Choose <em>any</em> to widen the net, or <em>all</em> to find the rare combinations.
+        </p>
       </header>
 
       {status === 'loading' && <Loading message="Catching Pokémon…" progress={progress} />}
@@ -72,42 +76,8 @@ export default function GalleryView() {
 
       {status === 'ready' && (
         <>
-          <div className={styles.filters}>
-            <div className={styles.filterHeader}>
-              <h2 className={styles.filterTitle}>Filter by type</h2>
-              <div className={styles.filterActions}>
-                <div className={styles.matchToggle} role="group" aria-label="Type match mode">
-                  <button
-                    type="button"
-                    className={matchMode === 'any' ? `${styles.matchButton} ${styles.matchActive}` : styles.matchButton}
-                    aria-pressed={matchMode === 'any'}
-                    onClick={() => updateParams(selected, 'any')}
-                    title="Show Pokémon that have at least one of the selected types"
-                  >
-                    Match any
-                  </button>
-                  <button
-                    type="button"
-                    className={matchMode === 'all' ? `${styles.matchButton} ${styles.matchActive}` : styles.matchButton}
-                    aria-pressed={matchMode === 'all'}
-                    onClick={() => updateParams(selected, 'all')}
-                    title="Show Pokémon that have every selected type"
-                  >
-                    Match all
-                  </button>
-                </div>
-                <button
-                  type="button"
-                  className={styles.clear}
-                  onClick={() => updateParams([], matchMode)}
-                  disabled={selected.length === 0}
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.chips}>
+          <div className={styles.toolbar}>
+            <div className={styles.chips} role="group" aria-label="Filter by type">
               {allTypes.map((type) => {
                 const active = selected.includes(type)
                 return (
@@ -124,32 +94,77 @@ export default function GalleryView() {
                 )
               })}
             </div>
+
+            <div className={styles.actions}>
+              <div
+                className={`${controls.segmented} ${matchMode === 'all' ? controls.second : ''}`}
+                role="group"
+                aria-label="Type match mode"
+              >
+                <span className={controls.indicator} aria-hidden="true" />
+                <button
+                  type="button"
+                  className={matchMode === 'any' ? `${controls.segment} ${controls.segmentActive}` : controls.segment}
+                  aria-pressed={matchMode === 'any'}
+                  onClick={() => updateParams(selected, 'any')}
+                  title="Show Pokémon that have at least one of the selected types"
+                >
+                  Match any
+                </button>
+                <button
+                  type="button"
+                  className={matchMode === 'all' ? `${controls.segment} ${controls.segmentActive}` : controls.segment}
+                  aria-pressed={matchMode === 'all'}
+                  onClick={() => updateParams(selected, 'all')}
+                  title="Show Pokémon that have every selected type"
+                >
+                  Match all
+                </button>
+              </div>
+              <button
+                type="button"
+                className={styles.clear}
+                onClick={() => updateParams([], matchMode)}
+                disabled={selected.length === 0}
+              >
+                Clear
+              </button>
+            </div>
           </div>
 
           <p className={styles.count} aria-live="polite">
-            {results.length === 0
-              ? 'No Pokémon have all of the selected types. Try “Match any” or remove a type.'
-              : `Showing ${results.length} of ${pokemon.length} Pokémon`}
+            {results.length === 0 ? (
+              'No Pokémon have all of the selected types. Try “Match any” or remove a type.'
+            ) : (
+              <>
+                <strong>{results.length}</strong> of {pokemon.length} Pokémon
+              </>
+            )}
           </p>
 
           <ul className={styles.grid}>
             {results.map((p) => (
-              <li key={p.id}>
+              <li key={p.id} className={styles.cell}>
                 <Link to={`/pokemon/${p.id}`} state={navState} className={`${styles.card} ${typeClass(p.types[0])}`}>
-                  <span className={styles.number}>{formatId(p.id)}</span>
-                  <img
-                    className={styles.artwork}
-                    src={p.artwork}
-                    alt={displayName(p.name)}
-                    loading="lazy"
-                    width={240}
-                    height={240}
-                  />
-                  <span className={styles.name}>{displayName(p.name)}</span>
-                  <span className={styles.types}>
-                    {p.types.map((t) => (
-                      <TypeBadge key={t} type={t} />
-                    ))}
+                  <span className={styles.stage}>
+                    <span className={styles.glow} aria-hidden="true" />
+                    <img
+                      className={styles.artwork}
+                      src={p.artwork}
+                      alt={displayName(p.name)}
+                      loading="lazy"
+                      width={240}
+                      height={240}
+                    />
+                  </span>
+                  <span className={styles.caption}>
+                    <span className={styles.number}>{formatId(p.id)}</span>
+                    <span className={styles.name}>{displayName(p.name)}</span>
+                    <span className={styles.types}>
+                      {p.types.map((t) => (
+                        <TypeBadge key={t} type={t} />
+                      ))}
+                    </span>
                   </span>
                 </Link>
               </li>

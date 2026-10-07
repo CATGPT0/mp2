@@ -1,0 +1,114 @@
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem 2rem;
+}
+
+.chart {
+  position: relative;
+  width: min(230px, 100%);
+  aspect-ratio: 1;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.track,
+.value {
+  fill: none;
+  stroke: currentColor;
+}
+
+.track {
+  opacity: 0.14;
+}
+
+.value {
+  stroke-linecap: round;
+  animation: draw 1.4s var(--ease) both;
+}
+
+/* Rings draw in one after another, outermost first. */
+.svg g:nth-child(2) .value { animation-delay: 0.06s; }
+.svg g:nth-child(3) .value { animation-delay: 0.12s; }
+.svg g:nth-child(4) .value { animation-delay: 0.18s; }
+.svg g:nth-child(5) .value { animation-delay: 0.24s; }
+.svg g:nth-child(6) .value { animation-delay: 0.3s; }
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.total {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.totalLabel {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+  min-width: 11rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legendItem {
+  display: grid;
+  grid-template-columns: 0.7rem 1fr auto;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One colour per stat, shared by its ring and its legend dot. */
+.hp { color: #f2545b; }
+.attack { color: #f7964b; }
+.defense { color: #e8c33c; }
+.spAtk { color: #4fc387; }
+.spDef { color: #45b4e6; }
+.speed { color: #9b7ff2; }
+
+@keyframes draw {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}

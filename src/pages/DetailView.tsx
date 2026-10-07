@@ -9,6 +9,9 @@ import {
   idFromUrl,
   spriteUrl,
 } from '../api/pokeapi'
+import HeightCompare from '../components/HeightCompare'
+import { ChevronLeft, ChevronRight } from '../components/Icons'
+import StatRings from '../components/StatRings'
 import { ErrorMessage, Loading } from '../components/StatusMessage'
 import TypeBadge from '../components/TypeBadge'
 import usePokemonList from '../hooks/usePokemonList'
@@ -20,7 +23,6 @@ import {
   formatHeight,
   formatId,
   formatWeight,
-  statLabel,
   titleCase,
 } from '../utils/format'
 import { typeClass } from '../utils/typeClass'
@@ -45,8 +47,6 @@ type DetailState =
 // A finished request, tagged with what it was for so a stale result is
 // treated as "still loading" once the id changes or the user retries.
 type DetailResult = Exclude<DetailState, { status: 'loading' }> & { id: number; attempt: number }
-
-const MAX_STAT = 255
 
 // Flattens the evolution tree into stages: [[bulbasaur], [ivysaur], [venusaur]].
 // Branching lines such as Eevee's end up with several members in one stage.
@@ -165,8 +165,8 @@ export default function DetailView() {
     return (
       <section className={styles.page}>
         <ErrorMessage message={`“${params.id}” is not a valid Pokédex number.`} />
-        <Link to="/" className={styles.backLink}>
-          ← Back to search
+        <Link to="/" className={styles.standaloneBack}>
+          Back to search
         </Link>
       </section>
     )
@@ -174,33 +174,37 @@ export default function DetailView() {
 
   function neighbourLabel(neighbourId: number): string {
     const name = namesById.get(neighbourId)
-    return name ? `${formatId(neighbourId)} ${displayName(name)}` : formatId(neighbourId)
+    return name ? displayName(name) : formatId(neighbourId)
   }
 
-  const navBar = (
-    <nav className={styles.navBar} aria-label="Pokémon navigation">
+  // A floating, dock-like bar for previous / back / next.
+  const dock = (
+    <nav className={styles.dock} aria-label="Pokémon navigation">
       {neighbours?.prev ? (
-        <Link to={`/pokemon/${neighbours.prev}`} state={navState} className={styles.navButton} rel="prev">
-          <span className={styles.arrow} aria-hidden="true">
-            ←
+        <Link
+          to={`/pokemon/${neighbours.prev}`}
+          state={navState}
+          className={styles.dockButton}
+          rel="prev"
+          title="Previous (← key)"
+        >
+          <span className={styles.dockIcon}>
+            <ChevronLeft />
           </span>
-          <span className={styles.navText}>
-            <span className={styles.navHint}>Previous</span>
-            <span className={styles.navName}>{neighbourLabel(neighbours.prev)}</span>
+          <span className={styles.dockText}>
+            <span className={styles.dockHint}>Previous</span>
+            <span className={styles.dockName}>{neighbourLabel(neighbours.prev)}</span>
           </span>
         </Link>
       ) : (
-        <span className={`${styles.navButton} ${styles.navDisabled}`} aria-disabled="true">
-          <span className={styles.arrow} aria-hidden="true">
-            ←
-          </span>
-          <span className={styles.navText}>
-            <span className={styles.navHint}>Previous</span>
+        <span className={`${styles.dockButton} ${styles.dockDisabled}`} aria-disabled="true">
+          <span className={styles.dockIcon}>
+            <ChevronLeft />
           </span>
         </span>
       )}
 
-      <div className={styles.navCenter}>
+      <div className={styles.dockCenter}>
         <Link to={navState.from} className={styles.backLink}>
           {navState.fromLabel}
         </Link>
@@ -215,24 +219,22 @@ export default function DetailView() {
         <Link
           to={`/pokemon/${neighbours.next}`}
           state={navState}
-          className={`${styles.navButton} ${styles.navNext}`}
+          className={`${styles.dockButton} ${styles.dockNext}`}
           rel="next"
+          title="Next (→ key)"
         >
-          <span className={styles.navText}>
-            <span className={styles.navHint}>Next</span>
-            <span className={styles.navName}>{neighbourLabel(neighbours.next)}</span>
+          <span className={styles.dockText}>
+            <span className={styles.dockHint}>Next</span>
+            <span className={styles.dockName}>{neighbourLabel(neighbours.next)}</span>
           </span>
-          <span className={styles.arrow} aria-hidden="true">
-            →
+          <span className={styles.dockIcon}>
+            <ChevronRight />
           </span>
         </Link>
       ) : (
-        <span className={`${styles.navButton} ${styles.navNext} ${styles.navDisabled}`} aria-disabled="true">
-          <span className={styles.navText}>
-            <span className={styles.navHint}>Next</span>
-          </span>
-          <span className={styles.arrow} aria-hidden="true">
-            →
+        <span className={`${styles.dockButton} ${styles.dockNext} ${styles.dockDisabled}`} aria-disabled="true">
+          <span className={styles.dockIcon}>
+            <ChevronRight />
           </span>
         </span>
       )}
@@ -241,13 +243,12 @@ export default function DetailView() {
 
   return (
     <section className={styles.page}>
-      {navBar}
-
       {state.status === 'loading' && <Loading message="Loading Pokémon…" />}
       {state.status === 'error' && (
         <ErrorMessage message={state.message} onRetry={() => setAttempt((n) => n + 1)} />
       )}
       {state.status === 'ready' && <PokemonDetail data={state.data} navState={navState} />}
+      {dock}
     </section>
   )
 }
@@ -256,65 +257,93 @@ function PokemonDetail({ data, navState }: { data: DetailData; navState: DetailN
   const { pokemon, species, evolution } = data
   const types = [...pokemon.types].sort((a, b) => a.slot - b.slot).map((t) => t.type.name)
   const artwork = pokemon.sprites.other?.['official-artwork']?.front_default ?? artworkUrl(pokemon.id)
-  const totalStats = pokemon.stats.reduce((sum, s) => sum + s.base_stat, 0)
+  const name = displayName(pokemon.name)
 
   const genus = species?.genera.find((g) => g.language.name === 'en')?.genus
   // Use the most recent English Pokédex entry.
   const flavor = species?.flavor_text_entries.filter((f) => f.language.name === 'en').at(-1)
 
-  const facts: { label: string; value: string }[] = [
-    { label: 'Height', value: formatHeight(pokemon.height) },
-    { label: 'Weight', value: formatWeight(pokemon.weight) },
-    { label: 'Base experience', value: pokemon.base_experience?.toString() ?? '—' },
-  ]
-  if (species) {
-    facts.push(
-      { label: 'Habitat', value: species.habitat ? titleCase(species.habitat.name) : 'Unknown' },
-      { label: 'Capture rate', value: `${species.capture_rate} / 255` },
-      { label: 'Colour', value: titleCase(species.color.name) },
-      { label: 'Generation', value: species.generation.name.replace('generation-', '').toUpperCase() },
-    )
-  }
+  const profile: { label: string; value: string }[] = species
+    ? [
+        { label: 'Habitat', value: species.habitat ? titleCase(species.habitat.name) : 'Unknown' },
+        { label: 'Colour', value: titleCase(species.color.name) },
+        { label: 'Generation', value: species.generation.name.replace('generation-', '').toUpperCase() },
+      ]
+    : []
 
   return (
     <article className={`${styles.detail} ${typeClass(types[0])}`}>
-      <div className={styles.hero}>
-        <div className={styles.heroArt}>
-          <img className={styles.artwork} src={artwork} alt={displayName(pokemon.name)} width={320} height={320} />
-        </div>
-        <div className={styles.heroInfo}>
-          <span className={styles.number}>{formatId(pokemon.id)}</span>
-          <h1 className={styles.name}>{displayName(pokemon.name)}</h1>
-          {genus && <p className={styles.genus}>{genus}</p>}
-          <div className={styles.types}>
-            {types.map((t) => (
-              <TypeBadge key={t} type={t} size="large" />
-            ))}
-          </div>
+      {/* The artwork itself, hugely blurred, tints the top of the page. */}
+      <div className={styles.ambient} aria-hidden="true">
+        <img src={artwork} alt="" />
+      </div>
+
+      <header className={styles.hero}>
+        <p className={styles.eyebrow}>
+          {formatId(pokemon.id)}
+          {genus && <> · {genus}</>}
+        </p>
+        <h1 className={styles.name}>{name}</h1>
+        <div className={styles.types}>
+          {types.map((t) => (
+            <TypeBadge key={t} type={t} size="large" />
+          ))}
           {species && (species.is_legendary || species.is_mythical) && (
             <span className={styles.rarity}>{species.is_mythical ? 'Mythical' : 'Legendary'}</span>
           )}
-          {flavor && (
-            <blockquote className={styles.flavor}>
-              {cleanFlavorText(flavor.flavor_text)}
-              <cite className={styles.flavorSource}>Pokémon {titleCase(flavor.version.name)}</cite>
-            </blockquote>
-          )}
         </div>
-      </div>
 
-      <div className={styles.panels}>
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Profile</h2>
-          <dl className={styles.facts}>
-            {facts.map((f) => (
-              <div key={f.label} className={styles.fact}>
-                <dt>{f.label}</dt>
-                <dd>{f.value}</dd>
-              </div>
-            ))}
-          </dl>
-          <h3 className={styles.subTitle}>Abilities</h3>
+        <div className={styles.stage}>
+          <span className={styles.halo} aria-hidden="true" />
+          <img className={styles.artwork} src={artwork} alt={name} width={360} height={360} />
+          <span className={styles.floorShadow} aria-hidden="true" />
+        </div>
+
+        {flavor && (
+          <figure className={styles.flavor}>
+            <blockquote className={styles.quote}>{cleanFlavorText(flavor.flavor_text)}</blockquote>
+            <figcaption className={styles.source}>Pokédex entry · Pokémon {titleCase(flavor.version.name)}</figcaption>
+          </figure>
+        )}
+      </header>
+
+      <div className={styles.bento}>
+        <section className={`${styles.tile} ${styles.statsTile}`}>
+          <h2 className={styles.tileTitle}>Base stats</h2>
+          <StatRings stats={pokemon.stats.map((s) => ({ name: s.stat.name, value: s.base_stat }))} />
+        </section>
+
+        <section className={`${styles.tile} ${styles.heightTile}`}>
+          <h2 className={styles.tileTitle}>Height</h2>
+          <p className={styles.bigValue}>{formatHeight(pokemon.height)}</p>
+          <HeightCompare metres={pokemon.height / 10} name={name} />
+        </section>
+
+        <section className={styles.tile}>
+          <h2 className={styles.tileTitle}>Weight</h2>
+          <p className={styles.bigValue}>{formatWeight(pokemon.weight)}</p>
+        </section>
+
+        <section className={styles.tile}>
+          <h2 className={styles.tileTitle}>Base experience</h2>
+          <p className={styles.bigValue}>{pokemon.base_experience ?? '—'}</p>
+          <p className={styles.tileNote}>XP earned for defeating it</p>
+        </section>
+
+        {species && (
+          <section className={styles.tile}>
+            <h2 className={styles.tileTitle}>Capture rate</h2>
+            <p className={styles.bigValue}>
+              {species.capture_rate}
+              <span className={styles.unit}> / 255</span>
+            </p>
+            <progress className={styles.meter} value={species.capture_rate} max={255} />
+            <p className={styles.tileNote}>Higher is easier to catch</p>
+          </section>
+        )}
+
+        <section className={`${styles.tile} ${styles.wideTile}`}>
+          <h2 className={styles.tileTitle}>Abilities</h2>
           <ul className={styles.abilities}>
             {pokemon.abilities.map((a) => (
               <li key={a.ability.name} className={styles.ability}>
@@ -325,55 +354,50 @@ function PokemonDetail({ data, navState }: { data: DetailData; navState: DetailN
           </ul>
         </section>
 
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Base stats</h2>
-          <ul className={styles.stats}>
-            {pokemon.stats.map((s) => (
-              <li key={s.stat.name} className={styles.statRow}>
-                <span className={styles.statName}>{statLabel(s.stat.name)}</span>
-                <span className={styles.statValue}>{s.base_stat}</span>
-                <progress
-                  className={styles.statBar}
-                  value={s.base_stat}
-                  max={MAX_STAT}
-                  aria-label={`${statLabel(s.stat.name)} ${s.base_stat} of ${MAX_STAT}`}
-                />
-              </li>
-            ))}
-            <li className={`${styles.statRow} ${styles.statTotal}`}>
-              <span className={styles.statName}>Total</span>
-              <span className={styles.statValue}>{totalStats}</span>
-            </li>
-          </ul>
-        </section>
-      </div>
+        {profile.length > 0 && (
+          <section className={styles.tile}>
+            <h2 className={styles.tileTitle}>Profile</h2>
+            <dl className={styles.profile}>
+              {profile.map((f) => (
+                <div key={f.label} className={styles.profileRow}>
+                  <dt>{f.label}</dt>
+                  <dd>{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
-      {evolution.length > 1 && (
-        <section className={styles.panel}>
-          <h2 className={styles.panelTitle}>Evolution line</h2>
-          <ol className={styles.evolution}>
-            {evolution.map((stage, i) => (
-              <li key={i} className={styles.stage}>
-                {stage.map((member) => (
-                  <Link
-                    key={member.id}
-                    to={`/pokemon/${member.id}`}
-                    state={navState}
-                    className={
-                      member.id === pokemon.id ? `${styles.evoMember} ${styles.evoCurrent}` : styles.evoMember
-                    }
-                    aria-current={member.id === pokemon.id ? 'page' : undefined}
-                  >
-                    <img src={spriteUrl(member.id)} alt="" width={96} height={96} loading="lazy" />
-                    <span className={styles.evoNumber}>{formatId(member.id)}</span>
-                    <span className={styles.evoName}>{displayName(member.name)}</span>
-                  </Link>
-                ))}
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+        {evolution.length > 1 && (
+          <section className={`${styles.tile} ${styles.fullTile}`}>
+            <h2 className={styles.tileTitle}>Evolution line</h2>
+            <ol className={styles.evolution}>
+              {evolution.map((stage, i) => (
+                <li key={i} className={styles.evoStage}>
+                  {i > 0 && <ChevronRight className={styles.evoArrow} />}
+                  <span className={styles.evoMembers}>
+                    {stage.map((member) => (
+                      <Link
+                        key={member.id}
+                        to={`/pokemon/${member.id}`}
+                        state={navState}
+                        className={
+                          member.id === pokemon.id ? `${styles.evoMember} ${styles.evoCurrent}` : styles.evoMember
+                        }
+                        aria-current={member.id === pokemon.id ? 'page' : undefined}
+                      >
+                        <img src={spriteUrl(member.id)} alt="" width={88} height={88} loading="lazy" />
+                        <span className={styles.evoName}>{displayName(member.name)}</span>
+                        <span className={styles.evoNumber}>{formatId(member.id)}</span>
+                      </Link>
+                    ))}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )}
+      </div>
     </article>
   )
 }

@@ -1,20 +1,30 @@
+/* Soft tinted pills: a coloured dot plus type-coloured text. */
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
   border-radius: 999px;
-  background: var(--type-color);
-  color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-shadow: 0 1px 1px rgb(0 0 0 / 25%);
+  background: color-mix(in srgb, var(--type-color) 15%, transparent);
+  color: color-mix(in srgb, var(--type-color) 70%, var(--text));
+  font-weight: 600;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 
+.badge::before {
+  content: '';
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--type-color);
+}
+
 .small {
-  padding: 0.15rem 0.6rem;
-  font-size: 0.75rem;
+  padding: 0.12rem 0.55rem;
+  font-size: 0.72rem;
 }
 
 .large {
-  padding: 0.3rem 0.95rem;
-  font-size: 0.9rem;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.88rem;
 }
