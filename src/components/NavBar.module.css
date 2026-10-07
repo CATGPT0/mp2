@@ -1,0 +1,77 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--brand);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 18%);
+}
+
+.inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0.8rem 1rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #fff;
+  font-size: 1.35rem;
+  font-weight: 800;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+/* A small Poké Ball drawn with gradients. */
+.ball {
+  position: relative;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 3px solid #1f2933;
+  border-radius: 50%;
+  background: linear-gradient(to bottom, #fff 0 44%, #1f2933 44% 56%, #fff 56% 100%);
+}
+
+.ball::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: 2px solid #1f2933;
+  border-radius: 50%;
+  background: #fff;
+  transform: translate(-50%, -50%);
+}
+
+.nav {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.link {
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  color: rgb(255 255 255 / 88%);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+
+.link:hover {
+  background: rgb(255 255 255 / 16%);
+  color: #fff;
+}
+
+.active,
+.active:hover {
+  background: #fff;
+  color: var(--brand);
+}

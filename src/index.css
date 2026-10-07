@@ -1,0 +1,59 @@
+:root {
+  --brand: #e3350d;
+  --brand-dark: #b72a0a;
+  --bg: #f3f4f8;
+  --surface: #ffffff;
+  --hover: #f6f2f0;
+  --text: #1f2933;
+  --text-muted: #616e7c;
+  --border: #e1e4ea;
+  --danger: #c0262d;
+  --radius: 16px;
+  --shadow: 0 1px 3px rgb(15 23 42 / 8%), 0 4px 14px rgb(15 23 42 / 6%);
+  --page-width: 1180px;
+
+  color-scheme: light dark;
+  font-family: Nunito, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --brand: #f0532d;
+    --brand-dark: #d0401c;
+    --bg: #12151c;
+    --surface: #1c212b;
+    --hover: #262c38;
+    --text: #e8ebf0;
+    --text-muted: #9aa5b4;
+    --border: #2e3542;
+    --danger: #ff6b6b;
+    --shadow: 0 1px 3px rgb(0 0 0 / 40%), 0 4px 14px rgb(0 0 0 / 25%);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+img {
+  max-width: 100%;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--brand) 60%, transparent);
+  outline-offset: 2px;
+}

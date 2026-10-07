@@ -1,0 +1,223 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.filterHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.filterTitle {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.filterActions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.matchToggle {
+  display: flex;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+}
+
+.matchButton {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  background: var(--bg);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.matchButton + .matchButton {
+  border-left: 2px solid var(--border);
+}
+
+.matchActive {
+  background: var(--text);
+  color: var(--surface);
+}
+
+.clear {
+  padding: 0.45rem 0.9rem;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.clear:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Inactive chips are outlined in their type colour; active ones fill in. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.6rem 0.4rem 0.9rem;
+  border: 2px solid var(--type-color);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, transform 0.1s;
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--type-color) 15%, transparent);
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chipActive,
+.chipActive:hover {
+  background: var(--type-color);
+  color: #fff;
+}
+
+.chipCount {
+  min-width: 1.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--type-color) 22%, transparent);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.chipActive .chipCount {
+  background: rgb(255 255 255 / 28%);
+}
+
+.count {
+  margin: 0;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  height: 100%;
+  padding: 1rem 0.75rem 1.1rem;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--type-color) 32%, transparent) 0 42%, transparent 43%),
+    var(--surface);
+  box-shadow: var(--shadow);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--type-color) 40%, transparent);
+  outline: none;
+}
+
+.number {
+  align-self: flex-start;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.artwork {
+  width: 100%;
+  max-width: 150px;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 6px rgb(0 0 0 / 18%));
+  transition: transform 0.2s;
+}
+
+.card:hover .artwork {
+  transform: scale(1.06);
+}
+
+.name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.types {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem;
+}

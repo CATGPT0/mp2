@@ -1,0 +1,22 @@
+/*
+  One class per Pokémon type. Each only sets --type-color; components decide
+  how to use it (badge fill, card tint, stat bars).
+*/
+.normal { --type-color: #a8a77a; }
+.fire { --type-color: #ee8130; }
+.water { --type-color: #6390f0; }
+.electric { --type-color: #e8be1c; }
+.grass { --type-color: #5fae3a; }
+.ice { --type-color: #6cc8c4; }
+.fighting { --type-color: #c22e28; }
+.poison { --type-color: #a33ea1; }
+.ground { --type-color: #d4a64a; }
+.flying { --type-color: #8f7ff0; }
+.psychic { --type-color: #f95587; }
+.bug { --type-color: #94a518; }
+.rock { --type-color: #b6a136; }
+.ghost { --type-color: #735797; }
+.dragon { --type-color: #6f35fc; }
+.dark { --type-color: #705746; }
+.steel { --type-color: #8f8fa8; }
+.fairy { --type-color: #d685ad; }
